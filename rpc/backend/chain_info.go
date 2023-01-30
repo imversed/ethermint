@@ -153,6 +153,10 @@ func (b *Backend) FeeHistory(
 		}
 		blockEnd = int64(blockNumber)
 	}
+	res, err := b.queryClient.FeeMarket.BaseFee(rpctypes.ContextWithHeight(blockEnd), &feemarkettypes.QueryBaseFeeRequest{})
+	if err != nil {
+		return nil, err
+	}
 	userBlockCountInt := int64(userBlockCount)
 	maxBlockCount := int64(b.cfg.JSONRPC.FeeHistoryCap)
 	if userBlockCountInt > maxBlockCount {
@@ -220,6 +224,7 @@ func (b *Backend) FeeHistory(
 		}
 	}
 
+	thisBaseFee = append(thisBaseFee, (*hexutil.Big)(res.BaseFee.BigInt()))
 	feeHistory := rpctypes.FeeHistoryResult{
 		OldestBlock:  oldestBlock,
 		BaseFee:      thisBaseFee,
